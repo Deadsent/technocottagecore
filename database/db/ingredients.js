@@ -1,13 +1,14 @@
 const client = require("../index")
+const { createSetString } = require("../utils")
 
-const createIngredient = async ({name, type, quantity }) => {
+const createIngredient = async ({name, type, quantity, userId }) => {
     try {
         const {rows: ingredient} = await client.query(`
-        INSERT INTO ingredients(name, type, quantity)
-        VALUES ($1, $2, $3)
+        INSERT INTO ingredients(name, type, quantity, "userId")
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (name) DO NOTHING
         RETURNING *;
-        `, [name, type, quantity])
+        `, [name, type, quantity, userId])
     
         return ingredient 
     } catch (error) {
@@ -41,10 +42,7 @@ const selectIngredientById = async (id) => {
 }
 
 const updateIngredient = async (ingredientId, fields = {}) => {
-    const setString = Object.keys(fields)
-    .map((key, index) => `"${key}"=$${index + 1}`)
-    .join(", ");
-
+    const setString = createSetString(fields)
     try {
         if (setString.length > 0) {
             await client.query(
