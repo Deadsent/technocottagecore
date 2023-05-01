@@ -17,11 +17,14 @@ const createUser = async ({username, password, firstName, lastName, userEmail}) 
 }
 
 const selectAllUsers = async () => {
-    const {rows} = await client.query(`
-    SELECT * FROM users;
-    `)
-
-    return rows
+    try {
+        const {rows} = await client.query(`
+        SELECT * FROM users;
+        `)
+        return rows
+    } catch (error) {
+        throw error
+    }
 }
 
 const selectUserById = async (id) => {
@@ -37,8 +40,39 @@ const selectUserById = async (id) => {
     }
 }
 
+const updateUser = async (userId, fields={}) => {
+    try {
+        const setString = createSetString(fields)
+        if(setString.length > 0){
+            await client.query(`
+                UPDATE users
+                SET ${setString}
+                WHERE id=${userId}
+                RETURNING *;
+              `,
+              Object.values(fields)
+            )
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
+const deleteUser = async (userId) => {
+    try {
+        await client.query(`
+            DELETE FROM users
+            WHERE id = $1
+        `, [userId]) 
+    } catch (error) {
+        throw error   
+    }
+}
+
 module.exports = {
     createUser,
     selectAllUsers,
-    selectUserById
+    selectUserById,
+    updateUser,
+    deleteUser
 }

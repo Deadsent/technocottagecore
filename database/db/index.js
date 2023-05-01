@@ -4,10 +4,19 @@ const {
   selectAllIngredients,
   selectIngredientById,
   updateIngredient,
-  deleteIngredient
+  deleteIngredient,
+  selectIngredientsByUserId,
 } = require("./ingredients");
 
-const {createUser, selectUserById, selectAllUsers} = require("./users")
+const {
+  createUser,
+  selectUserById,
+  selectAllUsers,
+  updateUser,
+  deleteUser,
+} = require("./users");
+
+const {createRecipe} = require("./recipes")
 
 const buildTables = async () => {
   try {
@@ -51,7 +60,8 @@ const buildTables = async () => {
         "userId" INTEGER REFERENCES users(id) NOT NULL,
         description TEXT NOT NULL,
         "ingredientId" INTEGER REFERENCES ingredients(id),
-        "tagsId" INTEGER REFERENCES tags(id)
+        "tagsId" INTEGER REFERENCES tags(id),
+        "isPublic" BOOLEAN DEFAULT false
     );
     CREATE TABLE recipe_ingredients(
         id SERIAL PRIMARY KEY,
@@ -68,58 +78,104 @@ const buildTables = async () => {
         `);
     console.log("Finished Building Tables");
   } catch (error) {
-    console.error(error);
+    throw error;
   }
 };
 
 const createInitialIngredients = async () => {
-    try {
-        console.log("Starting to create ingredients")
-        await createIngredient({ name: "lettuce", type: "vegetable", quantity: 1, userId: 1 });
-        await createIngredient({ name: "tallow", type: "fat", quantity: 1, userId: 1 });
-        await createIngredient({ name: "apple", type: "fruit", quantity: 1, userId: 1 });
-        await createIngredient({ name: "salt", type: "seasoning", quantity: 1, userId: 1 });
-        await createIngredient({ name: "broccoli", type: "vegetable", quantity: 1, userId: 1 });
-        await createIngredient({ name: "butter", type: "fat", quantity: 1, userId: 1 });
-        await createIngredient({ name: "blueberries", type: "fruit", quantity: 1, userId: 1 });
-        await createIngredient({ name: "pepper", type: "seasoning", quantity: 1, userId: 1 });
-        
-        const pantry = await selectAllIngredients()
-        console.log("Here's our pantry ->", pantry)
-    } catch (error) {
-        console.error(error)
-    }
-
+  try {
+    console.log("Starting to create ingredients");
+    await createIngredient({
+      name: "lettuce",
+      type: "vegetable",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "tallow",
+      type: "fat",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "apple",
+      type: "fruit",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "salt",
+      type: "seasoning",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "broccoli",
+      type: "vegetable",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "butter",
+      type: "fat",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "blueberries",
+      type: "fruit",
+      quantity: 1,
+      userId: 1,
+    });
+    await createIngredient({
+      name: "pepper",
+      type: "seasoning",
+      quantity: 1,
+      userId: 1,
+    });
+    console.log("Finished creating ingredients!")
+  } catch (error) {
+    throw error;
+  }
 };
 
 const createInitialUsers = async () => {
-    try {
-        console.log("Starting to create users!")
-        await createUser({username: "Deadsent", password: "Deadman2", firstName: "Chloe", lastName: "Henderson", userEmail: "thedeadsent@gmail.com"})
-        const user = await selectUserById(1)
-        console.log("Getting User By ID: ", user)
-    } catch (error) {
-        console.error(error)
-    }
-}
+  try {
+    console.log("Starting to create users!");
+    await createUser({
+      username: "Deadsent",
+      password: "Deadman2",
+      firstName: "Chloe",
+      lastName: "Henderson",
+      userEmail: "thedeadsent@gmail.com",
+    });
+    console.log("Finished creating users!")
+  } catch (error) {
+    throw error;
+  }
+};
 
 const createInitialRecipes = async () => {
-    try {
-        
-    } catch (error) {
-        console.error(error)
-    }
-
+  try {
+    console.log("Starting to create recipes!")
+    await createRecipe({title: "Lorum Ipsum", description: "Dolor Est", userId: 1})
+    console.log("Finished creating recipes!")
+  } catch (error) {
+    throw error;
+  }
 };
 
 const initSeed = async () => {
-    try {
-        await buildTables();
-        await createInitialUsers();
-        await createInitialIngredients();
-    } catch (error) {
-        console.error(error)
-    }
+  try {
+    await buildTables();
+    await createInitialUsers();
+    await createInitialIngredients();
+    await createInitialRecipes();
+  } catch (error) {
+    throw error
+  }
 };
 
-initSeed();
+initSeed()
+  .catch(console.error)
+  .then(() => client.end());

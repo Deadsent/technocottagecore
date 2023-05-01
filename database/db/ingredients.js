@@ -12,7 +12,7 @@ const createIngredient = async ({name, type, quantity, userId }) => {
     
         return ingredient 
     } catch (error) {
-        console.error(error)
+        throw error
     }
 }
 
@@ -24,7 +24,7 @@ const selectAllIngredients = async () => {
     
         return rows 
     } catch (error) {
-        console.error(error)
+        throw error
     }
 }
 
@@ -37,7 +37,7 @@ const selectIngredientById = async (id) => {
     
         return ingredient
     } catch (error) {
-      console.error(error)  
+      throw error  
     }
 }
 
@@ -68,7 +68,19 @@ const deleteIngredient = async (ingredientId) => {
         WHERE id = $1
         `, [ingredientId])
     } catch (error) {
-        console.error(error)
+        throw error
+    }
+}
+
+const selectIngredientsByUserId = async (userId) => {
+    try {
+        const {rows: userIngredients} = await client.query(`
+        SELECT * FROM ingredients
+        WHERE "userId" = $1
+        `, [userId])
+        return userIngredients
+    } catch (error) {
+        throw error
     }
 }
 
@@ -77,5 +89,6 @@ module.exports = {
     selectAllIngredients,
     selectIngredientById,
     updateIngredient,
-    deleteIngredient
+    deleteIngredient,
+    selectIngredientsByUserId
 }
